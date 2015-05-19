@@ -22,14 +22,13 @@ class OG {
   }
 
   protected function parse($data) {
-    var_dump($data);
     $res = strpos($data, '</head>');
     if($res == false) {
       //TODO: handle error
     }
     $head = substr($data, 0, $res);
     $matches = array();
-    $amt = preg_match_all("/<meta.*?(content=(.*?))?[.*]?(property=(.*?))?[.*]?(content=(.*?))?>/", $head, $matches);
+    $amt = preg_match_all("/<meta.*?(content=(.*?))?(property=(.*?))?(content=(.*?))?>/", $head, $matches);
     $props = array('og:title', 'og:description', 'og:image');
     $result = array();
     for($i = 0; $i < $amt; $i++) {
