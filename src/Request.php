@@ -29,8 +29,8 @@ class Request {
             $result .= $data;
           });
 
-          $response->on('end', function ($error) use (&$result, $resolve) {
-            $resolve($result);
+          $response->on('end', function ($error) use (&$result, $resolve, $response) {
+            $resolve(array($result, $response));
           });
 
       });

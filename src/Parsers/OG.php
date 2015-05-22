@@ -1,27 +1,17 @@
 <?php
 namespace LinkParser\Parsers;
 
-use React\Promise\Promise;
-use React\SocketClient\Connector;
-use React\EventLoop\Factory;
-use LinkParser\Request;
 use LinkParser\Embed;
+use React\Stream\ThroughStream;
 
-class OG {
-
-  public function extract($link) {
-    $req = new Request();
-    return $req->get($link)->then(function($data) {
-      $og = $this->parse($data);
-      return new Promise(function($r) use ($og) { $r($og); });
-    });
-  }
+class OG extends ThroughStream {
 
   protected function quote_trim($str) {
-    return trim($str, "'\" ");
+    return trim($str, "'\" \/");
   }
 
-  protected function parse($data) {
+  public function filter($input) {
+    $data = $input['data'];
     $res = strpos($data, '</head>');
     if($res == false) {
       //TODO: handle error
@@ -39,7 +29,16 @@ class OG {
           $this->quote_trim($matches[6][$i]);
       }
     }
-    return new Embed($result['og:title'], $result['og:description'], $result['og:image']);
+    $result = array_replace_recursive(array('og:title' => '',
+      'og:description' => '', 'og:image' => ''), $result);
+
+    $embed = new Embed(array(
+      'title' => $result['og:title'],
+      'description' => $result['og:description'],
+      'image' => $result['og:image']
+    ));
+    $input['source'] = $input['source']->merge($embed);
+    return $input;
   }
 
 }
