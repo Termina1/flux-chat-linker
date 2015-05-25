@@ -1,7 +1,8 @@
 <?php
 
 namespace LinkParser;
-use React\Stream\ThroughStream;
+require_once(__DIR__ . '/util.php');
+
 use React\Partial;
 use LinkParser\Parsers\OG;
 use LinkParser\Parsers\Dropbox;
@@ -9,28 +10,20 @@ use LinkParser\Request;
 use LinkParser\Encoder;
 use LinkParser\Embed;
 
-function promiseAsStream($p) {
-  $stream = new ThroughStream();
-  $p->then(function($data) use ($stream) {
-    $stream->end($data);
-  });
-  return $stream;
-}
-
 class ParserFactory {
   public function parse($link) {
     $type = $this->getLinkType($link);
-    $req = $this->request($link);
+    $req = $this->request($link, $type);
     return $this->buildParser($type, $req);
   }
 
-  protected function request($link) {
+  protected function request($link, $type) {
     $req = new Request();
-    return promiseAsStream($req->get($link)->then(function($res) use ($link) {
+    return promiseAsStream($req->get($link)->then(function($res) use ($link, $type) {
       list($data, $response) = $res;
       return array('data' => $data,
         'response' => $response,
-        'source' => new Embed(array('link' => $link)));
+        'source' => new Embed(array('link' => $link, 'type' => $type)));
     }));
   }
 
