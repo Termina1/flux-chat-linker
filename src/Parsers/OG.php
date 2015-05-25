@@ -19,7 +19,7 @@ class OG extends ThroughStream {
     $head = substr($data, 0, $res);
     $matches = array();
     $amt = preg_match_all("/<meta.*?(content=(.*?))?(property=(.*?))?(content=(.*?))?>/", $head, $matches);
-    $props = array('og:title', 'og:description', 'og:image');
+    $props = array('og:title', 'og:description', 'og:image', 'og:type', 'og:video:url');
     $result = array();
     for($i = 0; $i < $amt; $i++) {
       $prop = $this->quote_trim($matches[4][$i]);
@@ -30,12 +30,14 @@ class OG extends ThroughStream {
       }
     }
     $result = array_replace_recursive(array('og:title' => '',
-      'og:description' => '', 'og:image' => ''), $result);
+      'og:description' => '', 'og:image' => '',
+      'og:type' => '', 'og:video:url' => ''), $result);
 
     $embed = new Embed(array(
       'title' => $result['og:title'],
       'description' => $result['og:description'],
-      'image' => $result['og:image']
+      'image' => $result['og:image'],
+      'og' => $result
     ));
     $input['source'] = $input['source']->merge($embed);
     return $input;

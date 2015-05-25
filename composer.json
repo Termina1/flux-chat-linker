@@ -1,7 +1,6 @@
 {
     "name": "terminal/vk-test",
     "require": {
-      "twig/twig": "~1.18",
         "react/react": "0.4.*",
         "react/partial": "~2.0",
         "react/promise": "~2.2"
