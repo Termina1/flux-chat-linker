@@ -24,7 +24,12 @@ class Request {
       $request = $this->client->request($method, $url);
       $result = "";
       $request->on('response', function ($response) use ($resolve, &$result) {
-
+	  $headers = $response->getHeaders();
+	  if(isset($headers['Location'])) {
+            return $this->get($headers['Location'])->then(function($data) use ($resolve) {
+              $resolve($data);
+            });
+          }
           $response->on('data', function ($data, $response) use (&$result) {
             $result .= $data;
           });

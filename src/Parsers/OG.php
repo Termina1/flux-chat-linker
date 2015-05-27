@@ -13,9 +13,6 @@ class OG extends ThroughStream {
   public function filter($input) {
     $data = $input['data'];
     $res = strpos($data, '</head>');
-    if($res == false) {
-      //TODO: handle error
-    }
     $head = substr($data, 0, $res);
     $matches = array();
     $amt = preg_match_all("/<meta.*?(content=(.*?))?(property=(.*?))?(content=(.*?))?>/", $head, $matches);
