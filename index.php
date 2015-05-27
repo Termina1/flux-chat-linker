@@ -47,5 +47,9 @@ $http->on('request', function ($request, $response) use ($factory, $poller) {
   }
 });
 
+$port = getenv('PORT');
+
+$port = $port ? intval($port) : 3000;
+
 $socket->listen(3000);
 $loop->run();
