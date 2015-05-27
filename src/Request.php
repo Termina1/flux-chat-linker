@@ -24,19 +24,23 @@ class Request {
       $request = $this->client->request($method, $url);
       $result = "";
       $request->on('response', function ($response) use ($resolve, &$result) {
-	  $headers = $response->getHeaders();
-	  if(isset($headers['Location'])) {
-            return $this->get($headers['Location'])->then(function($data) use ($resolve) {
-              $resolve($data);
-            });
-          }
-          $response->on('data', function ($data, $response) use (&$result) {
-            $result .= $data;
+        $headers = $response->getHeaders();
+        if(isset($headers['Location'])) {
+          return $this->get($headers['Location'])->then(function($data) use ($resolve) {
+            $resolve($data);
           });
+        }
 
-          $response->on('end', function ($error) use (&$result, $resolve, $response) {
-            $resolve(array($result, $response));
-          });
+        $response->on('data', function ($data, $response) use (&$result, $headers) {
+          if(isset($headers['Content-Encoding']) && $headers['Content-Encoding'] == 'gzip') {
+            $data = gzdecode($data);
+          }
+          $result .= $data;
+        });
+
+        $response->on('end', function ($error) use (&$result, $resolve, $response) {
+          $resolve(array($result, $response));
+        });
 
       });
       $request->end();
