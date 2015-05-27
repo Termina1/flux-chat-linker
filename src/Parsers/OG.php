@@ -23,7 +23,7 @@ class OG extends ThroughStream {
     $result = array();
     for($i = 0; $i < $amt; $i++) {
       $prop = $this->quote_trim($matches[4][$i]);
-      if(in_array($prop, $props)) {
+      if(in_array($prop, $props) && !isset($result[$prop])) {
         $result[$prop] = $matches[2][$i] ?
           $this->quote_trim($matches[2][$i]) :
           $this->quote_trim($matches[6][$i]);
