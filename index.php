@@ -18,6 +18,11 @@ function cors($response) {
   ));
 }
 
+function r404($response) {
+  $response->writeHead(404);
+  $response->end('');
+}
+
 $http = new React\Http\Server($socket);
 $http->on('request', function ($request, $response) use ($factory, $poller) {
   if($request->getPath() == '/'
@@ -27,13 +32,18 @@ $http->on('request', function ($request, $response) use ($factory, $poller) {
       cors($response);
       $factory->parse($request->getQuery()['link'])->pipe($response);
   } elseif($request->getPath() == '/poll'
-    && isset($request->getQuery()['server'])
-    && $request->getQuery()['server']) {
+    && (isset($request->getQuery()['token'])
+    || isset($request->getQuery()['server']))) {
       cors($response);
-      $poller->poll($request->getQuery()['server'])->pipe($response);
+      if(isset($request->getQuery()['server'])) {
+        $poller->poll($request->getQuery()['server'])->pipe($response);
+      } else if(isset($request->getQuery()['token'])) {
+        $poller->requestServer($request->getQuery()['token'])->pipe($response);
+      } else {
+        r404($response);
+      }
   } else {
-    $response->writeHead(404);
-    $response->end('');
+    r404($response);
   }
 });
 
