@@ -51,5 +51,5 @@ $port = getenv('PORT');
 
 $port = $port ? intval($port) : 3000;
 
-$socket->listen(3000);
+$socket->listen($port);
 $loop->run();
