@@ -33,12 +33,13 @@ class Request {
 
         $response->on('data', function ($data, $response) use (&$result, $headers) {
           if(isset($headers['Content-Encoding']) && $headers['Content-Encoding'] == 'gzip') {
-            $data = gzdecode($data);
+            //$data = gzdecode($data);
           }
           $result .= $data;
         });
 
         $response->on('end', function ($error) use (&$result, $resolve, $response) {
+          $result = gzinflate(substr($result, 10));
           $resolve(array($result, $response));
         });
 
